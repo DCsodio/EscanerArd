@@ -20,7 +20,7 @@ typedef struct {
 #define RX_PIN 4
 uint32_t calcularChecksum(Paquete* pkt);
 Paquete pkt;
-uint32_t checksum=0
+uint32_t checksum=0;
 
 uint8_t buffer[sizeof(Paquete)];
 bool headerEncontrado=false;
@@ -29,7 +29,7 @@ uint32_t idx = 0;
 void setup() {
     Serial.begin(115200);
     Serial1.begin(115200, SERIAL_8N1, RX_PIN, TX_PIN);
-    Serial.printf("sizeof(Persona) = %u\n", sizeof(Persona));
+    Serial.printf("sizeof(Persona) = %u\n", sizeof(Paquete));
 }
 
 void loop() {
@@ -38,20 +38,27 @@ void loop() {
 
         if(headerEncontrado==true){
             idx++; //leemos todos los bytes restantes
-            if(idx>=sizeof(Persona)){ // si es igual debemos copiarlo
-                memcpy(&pkt,buffer,sizeof(Persona)); //copiamos buffer en pkt
+            if(idx>=sizeof(Paquete)){ // si es igual debemos copiarlo
+                memcpy(&pkt,buffer,sizeof(Paquete)); //copiamos buffer en pkt
+                Serial.println("estoy aca");
+                checksum=calcularChecksum(&pkt);
+                if (pkt.checksum==checksum){//SEGUIR LA MAQUINA DE ESTADO
+                      Serial.printf("OK -> %u | %f | %d \n",pkt.distanciaMm, pkt.grados, pkt.analizando);
                 
-                checksum=calcularChecksum(&pkt)
+                
+                
+                
+                }else{
 
-                if (pkt.checksum==checksum){
-                      Serial.printf("OK -> %s | %lu | %lu \n",
-                    pkt.nombre, pkt.edad, pkt.altura);
+
+
+                    Serial.println("ERROR EN EL CHECKSUM");
                 }
 
                 headerEncontrado=false; //reiniciamos el buffer
-                idx=0;
-                Serial.printf("OK -> %s | %lu | %lu \n",
-                    pkt.nombre, pkt.edad, pkt.altura);
+                idx=0;  //Rreiniciamos el buffer
+                Serial.printf("OK -> %u | %f | %d \n",
+                    pkt.distanciaMm, pkt.grados, pkt.analizando);
             }
         }else{
             if(buffer[0]==HEADERONE && idx==0){// espero el primer header[0]
