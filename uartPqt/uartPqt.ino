@@ -10,8 +10,9 @@ typedef struct {
 	bool analizando=true;
 	uint16_t distanciaMm=0;
 	float grados=0;
+	uint32_t posX=0;
+	uint32_t posy=0;
 	uint32_t checksum;
-
 } Paquete;
 #pragma pack(pop)
 
@@ -49,9 +50,6 @@ void loop() {
                 
                 
                 }else{
-
-
-
                     Serial.println("ERROR EN EL CHECKSUM");
                 }
 
@@ -77,7 +75,8 @@ void loop() {
 
 uint32_t calcularChecksum(Paquete* pkt) {
     uint32_t sum = 0;
-
+    
+    // Sumar todos los bytes excepto los del campo checksum
     for (size_t i = 0; i < sizeof(Paquete) - sizeof(pkt->checksum); i++) {
         sum += ((uint8_t*)pkt)[i];  // convertimos pkt a bytes directamente
     }
